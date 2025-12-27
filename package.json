@@ -35,7 +35,7 @@
     "@orca-so/common-sdk": "0.6.4",
     "@orca-so/whirlpools-sdk": "^0.13.12",
     "@solana/spl-token": "^0.4.9",
-    "@solana/web3.js": "^1.95.4",
+    "@solana/web3.js": "^1.98.0",
     "bs58": "^6.0.0",
     "decimal.js": "^10.4.3",
     "bn.js": "^5.2.1",
