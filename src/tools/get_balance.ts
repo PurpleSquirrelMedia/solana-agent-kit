@@ -1,4 +1,5 @@
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import { getAssociatedTokenAddress } from "@solana/spl-token";
 import { SolanaAgentKit } from "../index";
 
 /**
@@ -10,10 +11,31 @@ import { SolanaAgentKit } from "../index";
 export async function get_balance(
   agent: SolanaAgentKit,
   token_address?: PublicKey
-) {
-  if (!token_address)
-    return await agent.connection.getBalance(agent.wallet_address) / LAMPORTS_PER_SOL
+): Promise<number | null> {
+  if (!token_address) {
+    return (
+      (await agent.connection.getBalance(agent.wallet_address)) /
+      LAMPORTS_PER_SOL
+    );
+  }
 
-  const token_account = await agent.connection.getTokenAccountBalance(token_address);
-  return token_account.value.uiAmount;
+  try {
+    // Get the Associated Token Account for this mint and wallet
+    const ata = await getAssociatedTokenAddress(
+      token_address,
+      agent.wallet_address
+    );
+
+    const token_account = await agent.connection.getTokenAccountBalance(ata);
+    return token_account.value.uiAmount;
+  } catch (error: any) {
+    // Return null if the token account doesn't exist
+    if (
+      error.message?.includes("could not find account") ||
+      error.message?.includes("Invalid param")
+    ) {
+      return null;
+    }
+    throw error;
+  }
 }
